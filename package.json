@@ -1,0 +1,25 @@
+{
+  "name": "async-weather-news-dashboard",
+  "version": "1.0.0",
+  "description": "A TypeScript project demonstrating callbacks and promises using weather and news APIs.",
+  "scripts": {
+    "callback": "tsx src/callbacks/callbackVersion.ts",
+    "promise": "tsx src/promises/promiseVersion.ts",
+    "build": "tsc"
+  },
+  "keywords": [
+    "typescript",
+    "nodejs",
+    "callbacks",
+    "promises",
+    "weather",
+    "news"
+  ],
+  "author": "Princess Tau",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  }
+}
