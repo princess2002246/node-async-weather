@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "A TypeScript project demonstrating callbacks and promises using weather and news APIs.",
   "scripts": {
-    "callback": "tsx src/callbacks/callbackVersion.ts",
-    "promise": "tsx src/promises/promiseVersion.ts",
-    "build": "tsc"
-  },
+  "callback": "tsx src/callbacks/callbackVersion.ts",
+  "promise": "tsx src/promises/promiseVersion.ts",
+  "async": "tsx src/async-await/asyncAwaitVersion.ts",
+  "build": "tsc"
+},
   "keywords": [
     "typescript",
     "nodejs",
