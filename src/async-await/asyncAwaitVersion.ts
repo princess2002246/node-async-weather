@@ -1,5 +1,4 @@
 
- // 1. Define data structures
 
 interface Coordinates {
     latitude: number;
@@ -26,7 +25,6 @@ interface NewsResponse {
     posts: NewsPost[];
 }
 
-// 2. Reusable async API request with error handling
 
 async function fetchData<T>(url: string): Promise<T> {
 
@@ -73,7 +71,6 @@ async function fetchData<T>(url: string): Promise<T> {
     }
 }
 
-// 3. Get city coordinates
 
 async function getCoordinates(city: string): Promise<Coordinates> {
 
@@ -105,7 +102,6 @@ async function getCoordinates(city: string): Promise<Coordinates> {
     };
 }
 
-// 4. Fetch weather information
 
 async function getWeather(
     coordinates: Coordinates
@@ -119,7 +115,6 @@ async function getWeather(
     return await fetchData<WeatherData>(url);
 }
 
-// 5. Fetch news headlines
 
 async function getNews(): Promise<NewsResponse> {
 
@@ -128,7 +123,6 @@ async function getNews(): Promise<NewsResponse> {
     return await fetchData<NewsResponse>(url);
 }
 
-// 6. Display weather information
 
 function displayWeather(weather: WeatherData): void {
 
@@ -147,7 +141,6 @@ function displayWeather(weather: WeatherData): void {
     );
 }
 
-// 7. Display news headlines
 
 function displayNews(news: NewsResponse): void {
 
@@ -159,7 +152,7 @@ function displayNews(news: NewsResponse): void {
     });
 }
 
-// 8. Run dashboard using async/await
+
 
 async function runAsyncAwaitVersion(city: string): Promise<void> {
 
