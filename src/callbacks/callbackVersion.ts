@@ -1,6 +1,7 @@
 
 import * as https from "node:https";
 import { IncomingMessage } from "node:http";
+import { createAppError, getErrorMessage } from "../utils/errors";
 
 // 1. Define data structures
 
@@ -38,7 +39,6 @@ function fetchData<T>(
 
     let completed = false;
 
-    // Ensure the callback only runs once
     const finish = (error: Error | null, data?: T): void => {
         if (completed) return;
 
@@ -50,15 +50,15 @@ function fetchData<T>(
 
         let responseData = "";
 
-        // Check API response status
         if (
             response.statusCode === undefined ||
             response.statusCode < 200 ||
             response.statusCode >= 300
         ) {
             finish(
-                new Error(
-                    `API Error: Request failed with status ${response.statusCode}.`
+                createAppError(
+                    "API",
+                    `Request failed with status ${response.statusCode}.`
                 )
             );
 
@@ -66,54 +66,55 @@ function fetchData<T>(
             return;
         }
 
-        // Collect response data
         response.on("data", (chunk: Buffer) => {
             responseData += chunk.toString();
         });
 
-        // Process completed response
         response.on("end", () => {
             try {
                 const parsedData = JSON.parse(responseData) as T;
                 finish(null, parsedData);
-
             } catch {
                 finish(
-                    new Error(
-                        "Data Error: The API returned an invalid response."
+                    createAppError(
+                        "DATA",
+                        "The API returned an invalid response."
                     )
                 );
             }
         });
 
-        // Handle response errors
         response.on("error", () => {
             finish(
-                new Error(
-                    "Network Error: Unable to read the API response."
+                createAppError(
+                    "NETWORK",
+                    "Unable to read the API response."
                 )
             );
         });
     });
 
-    // Handle connection errors
     request.on("error", (error: Error) => {
-        if (error.message.includes("Timeout")) {
-            finish(error);
+
+        if (error.message.toLowerCase().includes("timeout")) {
+            finish(
+                createAppError(
+                    "TIMEOUT",
+                    "The API request took too long. Please try again."
+                )
+            );
         } else {
             finish(
-                new Error(
-                    "Network Error: Unable to connect. Please check your internet connection."
+                createAppError(
+                    "NETWORK",
+                    "Unable to connect. Please check your internet connection."
                 )
             );
         }
     });
 
-    // Handle requests that take too long
     request.setTimeout(10000, () => {
-        request.destroy(
-            new Error("Timeout Error: The API request took too long.")
-        );
+        request.destroy(new Error("Request timeout"));
     });
 }
 
@@ -145,7 +146,10 @@ function getCoordinates(
 
         if (!location) {
             callback(
-                new Error(`City "${city}" was not found.`)
+                createAppError(
+                    "LOCATION",
+                    `City "${city}" was not found.`
+                )
             );
             return;
         }
@@ -220,10 +224,8 @@ function displayNews(news: NewsResponse): void {
 
 function runCallbackVersion(city: string): void {
 
-    console.log("\n==================================");
     console.log(" ASYNC WEATHER & NEWS DASHBOARD");
     console.log(" CALLBACK IMPLEMENTATION");
-    console.log("==================================");
 
     console.log(`\nSearching for weather in ${city}...`);
 
@@ -231,11 +233,14 @@ function runCallbackVersion(city: string): void {
     getCoordinates(city, (error, coordinates) => {
 
         if (error) {
-            console.error("Location Error:", error.message);
+            console.error(getErrorMessage(error));
             return;
         }
 
-        if (!coordinates) return;
+        if (!coordinates) {
+            console.error("[ERROR] Location information is unavailable.");
+            return;
+        }
 
         console.log(
             `\nLocation: ${coordinates.name}, ${coordinates.country}`
@@ -247,11 +252,14 @@ function runCallbackVersion(city: string): void {
         getWeather(coordinates, (weatherError, weather) => {
 
             if (weatherError) {
-                console.error("Weather Error:", weatherError.message);
+                console.error(getErrorMessage(weatherError));
                 return;
             }
 
-            if (!weather) return;
+            if (!weather) {
+                console.error("[ERROR] Weather information is unavailable.");
+                return;
+            }
 
             console.log("\nWeather information fetched successfully!");
 
@@ -263,19 +271,20 @@ function runCallbackVersion(city: string): void {
             getNews((newsError, news) => {
 
                 if (newsError) {
-                    console.error("News Error:", newsError.message);
+                    console.error(getErrorMessage(newsError));
                     return;
                 }
 
-                if (!news) return;
+                if (!news) {
+                    console.error("[ERROR] News information is unavailable.");
+                    return;
+                }
 
                 console.log("\nNews headlines fetched successfully!");
 
                 displayNews(news);
 
-                console.log("\n==================================");
                 console.log(" DASHBOARD LOADING COMPLETED");
-                console.log("==================================\n");
             });
         });
     });
